@@ -6,6 +6,12 @@
 [![Discord](https://img.shields.io/discord/122900397965705216.svg?style=flat-square&label=Discord)](https://pterodactyl.io/discord)
 
 **Deprecation Notice:** This branch deprecates the route server.settings.name which should be changed to the replacement server.settings
+
+**Change Log:**
+
+Here are a list of changes folf panel has over pterodactyl
+- Allow users to reinstall their servers
+- 'Access phpMyAdmin' button on database listing
 # Pterodactyl Panel
 
 Pterodactyl is the open-source game server management panel built with PHP7, Nodejs, and Go. Designed with security in mind, Pterodactyl runs all game servers in isolated Docker containers while exposing a beautiful and intuitive UI to administrators and users.
