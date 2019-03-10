@@ -61,10 +61,13 @@
                                             <i class="fa fa-fw fa-refresh"></i> @lang('server.config.database.reset_password')
                                         </button>
                                         @endcan
-
-                                        <button class="btn btn-xs btn-success pull-right" style="margin-right:10px;" data-action="access-phpmyadmin" data-database="{{ $database->database }}" data-password="{{ Crypt::decrypt($database->password) }}" data-username="{{ $database->username }}">
-                                            <i class="fa fa-fw fa-database"></i>@lang('server.config.database.phpmyadmin')
-                                        </button>
+                                        <form style="display: initial;" target="_blank" action="/phpmyadmin/db_structure.php?server=1&db={{ $database->database }}" method="post">
+                                            <input type="hidden" name="pma_username" value="{{ $database->username }}">
+                                            <input type="hidden" name="pma_password" value="{{ Crypt::decrypt($database->password) }}">
+                                            <button class="btn btn-xs btn-success pull-right" style="margin-right:10px;">
+                                                <i class="fa fa-fw fa-database"></i>@lang('server.config.database.phpmyadmin')
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @endforeach
@@ -148,6 +151,7 @@
                     }
                 }).done(function (data) {
                     block.parent().parent().find('[data-attr="set-password"]').html(data.password);
+                    block.parent().parent().find('[name="pma_password"]').attr('value', data.password);
                 }).fail(function(jqXHR) {
                     console.error(jqXHR);
                     var error = 'An error occurred while trying to process this request.';
@@ -196,31 +200,5 @@
                 });
             });
         @endcan
-        $('[data-action="access-phpmyadmin"]').click(function (e) {
-            e.preventDefault();
-            var block = $(this);
-            $(this).addClass('disabled').find('i').addClass('fa-spin');
-            $.ajax({
-                type: 'POST',
-                url: '/phpmyadmin/db_structure.php?server=1&db=' + $(this).data('database'),
-                data: {
-                    pma_username: $(this).data('username'),
-                    pma_password: $(this).data('password')
-                }
-            }).fail(function(jqXHR) {
-                console.error(jqXHR);
-                var error = 'An error occurred while trying to process this request.';
-                if (typeof jqXHR.responseJSON !== 'undefined' && typeof jqXHR.responseJSON.error !== 'undefined') {
-                    error = jqXHR.responseJSON.error;
-                }
-                swal({
-                    type: 'error',
-                    title: 'Whoops!',
-                    text: error
-                });
-            }).always(function () {
-                block.removeClass('disabled').find('i').removeClass('fa-spin');
-            });
-        });
     </script>
 @endsection
