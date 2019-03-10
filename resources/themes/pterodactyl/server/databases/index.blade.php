@@ -50,20 +50,22 @@
                                         </code>
                                     </td>
                                     <td class="middle"><code>{{ $database->host->host }}:{{ $database->host->port }}</code></td>
-                                    @if(Gate::allows('reset-db-password', $server) || Gate::allows('delete-database', $server))
-                                        <td>
-                                            @can('delete-database', $server)
-                                                <button class="btn btn-xs btn-danger pull-right" data-action="delete-database" data-id="{{ $database->id }}">
-                                                    <i class="fa fa-fw fa-trash-o"></i>
-                                                </button>
-                                            @endcan
-                                            @can('reset-db-password', $server)
-                                                <button class="btn btn-xs btn-primary pull-right" style="margin-right:10px;" data-action="reset-password" data-id="{{ $database->id }}">
-                                                    <i class="fa fa-fw fa-refresh"></i> @lang('server.config.database.reset_password')
-                                                </button>
-                                            @endcan
-                                        </td>
-                                    @endif
+                                    <td>
+                                        @can('delete-database', $server)
+                                        <button class="btn btn-xs btn-danger pull-right" data-action="delete-database" data-id="{{ $database->id }}">
+                                            <i class="fa fa-fw fa-trash-o"></i>
+                                        </button>
+                                        @endcan
+                                        @can('reset-db-password', $server)
+                                        <button class="btn btn-xs btn-primary pull-right" style="margin-right:10px;" data-action="reset-password" data-id="{{ $database->id }}">
+                                            <i class="fa fa-fw fa-refresh"></i> @lang('server.config.database.reset_password')
+                                        </button>
+                                        @endcan
+
+                                        <button class="btn btn-xs btn-success pull-right" style="margin-right:10px;" data-action="access-phpmyadmin" data-database="{{ $database->database }}" data-password="{{ Crypt::decrypt($database->password) }}" data-username="{{ $database->username }}">
+                                            <i class="fa fa-fw fa-database"></i>@lang('server.config.database.phpmyadmin')
+                                        </button>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -194,5 +196,31 @@
                 });
             });
         @endcan
+        $('[data-action="access-phpmyadmin"]').click(function (e) {
+            e.preventDefault();
+            var block = $(this);
+            $(this).addClass('disabled').find('i').addClass('fa-spin');
+            $.ajax({
+                type: 'POST',
+                url: '/phpmyadmin/db_structure.php?server=1&db=' + $(this).data('database'),
+                data: {
+                    pma_username: $(this).data('username'),
+                    pma_password: $(this).data('password')
+                }
+            }).fail(function(jqXHR) {
+                console.error(jqXHR);
+                var error = 'An error occurred while trying to process this request.';
+                if (typeof jqXHR.responseJSON !== 'undefined' && typeof jqXHR.responseJSON.error !== 'undefined') {
+                    error = jqXHR.responseJSON.error;
+                }
+                swal({
+                    type: 'error',
+                    title: 'Whoops!',
+                    text: error
+                });
+            }).always(function () {
+                block.removeClass('disabled').find('i').removeClass('fa-spin');
+            });
+        });
     </script>
 @endsection

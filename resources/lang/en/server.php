@@ -335,6 +335,7 @@ return [
             'reset_password' => 'Reset Password',
             'no_dbs' => 'There are no databases listed for this server.',
             'add_db' => 'Add a new database.',
+            'phpmyadmin' => 'Access phpMyAdmin',
         ],
         'allocation' => [
             'header' => 'Server Allocations',
